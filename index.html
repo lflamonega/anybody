@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Verificador de modelos gratuitos - OpenRouter</title>
+<style>
+body { font-family: monospace; max-width: 700px; margin: 20px auto; padding: 0 10px; }
+input { width: 400px; }
+table { border-collapse: collapse; width: 100%; margin-top: 15px; }
+td, th { border: 1px solid #999; padding: 4px 8px; text-align: left; }
+.ok { color: green; }
+.fail { color: red; }
+.pending { color: gray; }
+</style>
+</head>
+<body>
+
+<p>API Key de OpenRouter: <input type="password" id="key"> <button id="run">Verificar modelos gratuitos</button></p>
+<p id="status"></p>
+<table id="tbl" style="display:none">
+<thead><tr><th>Modelo</th><th>Estado</th><th>Detalle</th></tr></thead>
+<tbody id="body"></tbody>
+</table>
+
+<script>
+const btn = document.getElementById('run');
+const statusEl = document.getElementById('status');
+const tbl = document.getElementById('tbl');
+const body = document.getElementById('body');
+
+btn.onclick = async () => {
+  const key = document.getElementById('key').value.trim();
+  if (!key) { statusEl.textContent = 'Falta la API key.'; return; }
+  body.innerHTML = '';
+  tbl.style.display = 'none';
+  statusEl.textContent = 'Obteniendo lista de modelos...';
+
+  let models;
+  try {
+    const res = await fetch('https://openrouter.ai/api/v1/models', {
+      headers: { 'Authorization': 'Bearer ' + key }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    models = data.data.filter(m => m.id.endsWith(':free'));
+  } catch (e) {
+    statusEl.textContent = 'Error al obtener modelos: ' + e.message;
+    return;
+  }
+
+  statusEl.textContent = 'Modelos gratuitos encontrados: ' + models.length + '. Probando cada uno...';
+  tbl.style.display = 'table';
+
+  for (const m of models) {
+    const row = document.createElement('tr');
+    row.innerHTML = '<td>' + m.id + '</td><td class="pending">probando...</td><td></td>';
+    body.appendChild(row);
+
+    try {
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + key,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: m.id,
+          messages: [{ role: 'user', content: 'hola' }],
+          max_tokens: 1
+        })
+      });
+      const j = await res.json().catch(() => ({}));
+      if (res.ok && !j.error) {
+        row.children[1].textContent = 'OK';
+        row.children[1].className = 'ok';
+      } else {
+        row.children[1].textContent = 'FALLA';
+        row.children[1].className = 'fail';
+        row.children[2].textContent = (j.error && j.error.message) || ('HTTP ' + res.status);
+      }
+    } catch (e) {
+      row.children[1].textContent = 'FALLA';
+      row.children[1].className = 'fail';
+      row.children[2].textContent = e.message;
+    }
+  }
+
+  statusEl.textContent = 'Verificación completa.';
+};
+</script>
+
+</body>
+</html>

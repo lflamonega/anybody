@@ -4,23 +4,30 @@
 <meta charset="UTF-8">
 <title>Verificador de modelos gratuitos - OpenRouter</title>
 <style>
-body { font-family: monospace; max-width: 700px; margin: 20px auto; padding: 0 10px; }
+:root { --bg: #fff; --fg: #111; --border: #999; --ok: green; --fail: red; --pending: gray; }
+* { box-sizing: border-box; }
+body { font-family: monospace; max-width: 700px; margin: 20px auto; padding: 0 10px; background: var(--bg); color: var(--fg); }
+input, button { font-family: inherit; }
 input { width: 400px; }
+label { display: inline-block; margin-right: 6px; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 table { border-collapse: collapse; width: 100%; margin-top: 15px; }
-td, th { border: 1px solid #999; padding: 4px 8px; text-align: left; }
-.ok { color: green; }
-.fail { color: red; }
-.pending { color: gray; }
+th, td { border: 1px solid var(--border); padding: 4px 8px; text-align: left; }
+.ok { color: var(--ok); }
+.fail { color: var(--fail); }
+.pending { color: var(--pending); }
 </style>
 </head>
 <body>
 
-<p>API Key de OpenRouter: <input type="password" id="key"> <button id="run">Verificar modelos gratuitos</button></p>
+<main>
+<p><label for="key">API Key de OpenRouter:</label> <input type="password" id="key" aria-label="API Key"> <button id="run">Verificar modelos gratuitos</button></p>
 <p id="status"></p>
 <table id="tbl" style="display:none">
 <thead><tr><th>Modelo</th><th>Estado</th><th>Detalle</th></tr></thead>
 <tbody id="body"></tbody>
 </table>
+</main>
 
 <script>
 const btn = document.getElementById('run');

@@ -61,6 +61,7 @@ btn.onclick = async () => {
     body.appendChild(row);
 
     try {
+      const start = Date.now();
       const controller = new AbortController();
       timeoutId = setTimeout(() => controller.abort(), 30000);
       const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -77,29 +78,32 @@ btn.onclick = async () => {
         })
       });
       clearTimeout(timeoutId);
+      const dur = Date.now() - start;
       const j = await res.json().catch(() => ({}));
       if (res.ok && !j.error) {
         row.children[1].textContent = 'OK';
         row.children[1].className = 'ok';
+        row.children[2].textContent = dur + 'ms';
       } else {
         row.children[1].textContent = 'FALLA';
         row.children[1].className = 'fail';
-        row.children[2].textContent = (j.error && j.error.message) || ('HTTP ' + res.status);
+        row.children[2].textContent = ((j.error && j.error.message) || ('HTTP ' + res.status)) + ' (' + dur + 'ms)';
       }
     } catch (e) {
+      const dur = Date.now() - start;
       clearTimeout(timeoutId);
       if (e.name === 'AbortError') {
         row.children[1].textContent = 'TIMEOUT';
         row.children[1].className = 'pending';
-        row.children[2].textContent = 'Timeout nativo del sitio (30s)';
+        row.children[2].textContent = 'Timeout nativo del sitio (30s) (' + dur + 'ms)';
       } else if (e.message && e.message.toLowerCase().includes('timeout')) {
         row.children[1].textContent = 'TIMEOUT';
         row.children[1].className = 'pending';
-        row.children[2].textContent = 'Timeout del proveedor: ' + e.message;
+        row.children[2].textContent = 'Timeout del proveedor: ' + e.message + ' (' + dur + 'ms)';
       } else {
         row.children[1].textContent = 'FALLA';
         row.children[1].className = 'fail';
-        row.children[2].textContent = e.message;
+        row.children[2].textContent = e.message + ' (' + dur + 'ms)';
       }
     }
   }

@@ -52,23 +52,28 @@ btn.onclick = async () => {
   tbl.style.display = 'table';
 
   for (const m of models) {
+    let timeoutId;
     const row = document.createElement('tr');
     row.innerHTML = '<td>' + m.id + '</td><td class="pending">probando...</td><td></td>';
     body.appendChild(row);
 
     try {
+      const controller = new AbortController();
+      timeoutId = setTimeout(() => controller.abort(), 30000);
       const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Authorization': 'Bearer ' + key,
           'Content-Type': 'application/json'
         },
+        signal: controller.signal,
         body: JSON.stringify({
           model: m.id,
           messages: [{ role: 'user', content: 'hola' }],
           max_tokens: 1
         })
       });
+      clearTimeout(timeoutId);
       const j = await res.json().catch(() => ({}));
       if (res.ok && !j.error) {
         row.children[1].textContent = 'OK';
@@ -79,9 +84,20 @@ btn.onclick = async () => {
         row.children[2].textContent = (j.error && j.error.message) || ('HTTP ' + res.status);
       }
     } catch (e) {
-      row.children[1].textContent = 'FALLA';
-      row.children[1].className = 'fail';
-      row.children[2].textContent = e.message;
+      clearTimeout(timeoutId);
+      if (e.name === 'AbortError') {
+        row.children[1].textContent = 'TIMEOUT';
+        row.children[1].className = 'pending';
+        row.children[2].textContent = 'Timeout nativo del sitio (30s)';
+      } else if (e.message && e.message.toLowerCase().includes('timeout')) {
+        row.children[1].textContent = 'TIMEOUT';
+        row.children[1].className = 'pending';
+        row.children[2].textContent = 'Timeout del proveedor: ' + e.message;
+      } else {
+        row.children[1].textContent = 'FALLA';
+        row.children[1].className = 'fail';
+        row.children[2].textContent = e.message;
+      }
     }
   }
 

@@ -23,6 +23,7 @@ td, th { border: 1px solid #999; padding: 4px 8px; text-align: left; }
 </table>
 
 <script>
+const btn = document.getElementById('run');
 const keyInput = document.getElementById('key');
 keyInput.value = localStorage.getItem('openrouter_key') || '';
 keyInput.addEventListener('input', () => localStorage.setItem('openrouter_key', keyInput.value));

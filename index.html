@@ -23,13 +23,15 @@ td, th { border: 1px solid #999; padding: 4px 8px; text-align: left; }
 </table>
 
 <script>
-const btn = document.getElementById('run');
+const keyInput = document.getElementById('key');
+keyInput.value = localStorage.getItem('openrouter_key') || '';
+keyInput.addEventListener('input', () => localStorage.setItem('openrouter_key', keyInput.value));
 const statusEl = document.getElementById('status');
 const tbl = document.getElementById('tbl');
 const body = document.getElementById('body');
 
 btn.onclick = async () => {
-  const key = document.getElementById('key').value.trim();
+  const key = keyInput.value.trim();
   if (!key) { statusEl.textContent = 'Falta la API key.'; return; }
   body.innerHTML = '';
   tbl.style.display = 'none';

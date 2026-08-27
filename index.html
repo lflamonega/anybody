@@ -8,9 +8,11 @@
 * { box-sizing: border-box; }
 body { font-family: monospace; max-width: 800px; margin: 0 auto; padding: 20px 16px; background: var(--bg); color: var(--fg); min-height: 100vh; line-height: 1.5; font-size: 14px; display: flex; flex-direction: column; }
 main { flex: 1; display: flex; flex-direction: column; gap: 18px; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.controls input { flex: 1; min-width: 200px; max-width: 320px; }
 input, button { font-family: inherit; }
-input { width: 320px; padding: 6px; font-size: 14px; }
-label { display: inline-block; margin-right: 10px; font-weight: bold; }
+input { padding: 6px; font-size: 14px; }
+label { font-weight: bold; }
 button { padding: 8px 14px; font-size: 14px; cursor: pointer; }
 button:focus-visible, input:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 table { border-collapse: collapse; width: 100%; margin-top: 12px; flex: 1; min-height: 60vh; }
@@ -24,9 +26,9 @@ th, td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; f
 <body>
 
 <main>
-<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+<div class="controls">
 <label for="key">API Key de OpenRouter:</label>
-<input type="password" id="key" aria-label="API Key" style="width:320px">
+<input type="password" id="key" aria-label="API Key">
 <button id="run">Verificar modelos gratuitos</button>
 </div>
 <p id="status"></p>

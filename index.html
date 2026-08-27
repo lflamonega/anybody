@@ -24,7 +24,11 @@ th, td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; f
 <body>
 
 <main>
-<p><label for="key">API Key de OpenRouter:</label> <input type="password" id="key" aria-label="API Key"> <button id="run">Verificar modelos gratuitos</button></p>
+<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+<label for="key">API Key de OpenRouter:</label>
+<input type="password" id="key" aria-label="API Key" style="width:320px">
+<button id="run">Verificar modelos gratuitos</button>
+</div>
 <p id="status"></p>
 <table id="tbl" style="display:none">
 <thead><tr><th>Modelo</th><th>Estado</th><th>Detalle</th></tr></thead>
